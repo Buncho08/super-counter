@@ -1,0 +1,10 @@
+                                       Table "public.counters"
+   Column   |           Type           | Collation | Nullable |               Default                
+------------+--------------------------+-----------+----------+--------------------------------------
+ id         | integer                  |           | not null | nextval('counters_id_seq'::regclass)
+ name       | text                     |           | not null | 'default'::text
+ value      | integer                  |           | not null | 0
+ updated_at | timestamp with time zone |           | not null | now()
+Indexes:
+    "counters_pkey" PRIMARY KEY, btree (id)
+

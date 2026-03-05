@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = 'http://localhost:5175';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5173';
 
 test.describe('Counter App', () => {
   test('ページが表示され、カウンターが 0 から始まる', async ({ page }) => {
