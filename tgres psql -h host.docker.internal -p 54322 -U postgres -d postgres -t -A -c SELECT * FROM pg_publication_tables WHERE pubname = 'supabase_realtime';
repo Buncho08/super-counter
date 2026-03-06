@@ -1,0 +1,5 @@
+      pubname      | schemaname | tablename |            attnames             | rowfilter 
+-------------------+------------+-----------+---------------------------------+-----------
+ supabase_realtime | public     | counters  | {user_id,name,value,updated_at} | 
+(1 row)
+

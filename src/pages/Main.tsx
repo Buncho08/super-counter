@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useCounter } from '../hooks/useCounter'
+import { useCounter } from '../contexts/CounterContext'
 import { onChangePage, getKindSync } from '../lib/changePage'
 import Monitor from './Monitor'
 import Bonus from './Bonus'

@@ -1,5 +1,5 @@
 import bonus from '/bonus.mp4'
-import { useCounter } from '../hooks/useCounter'
+import { useCounter } from '../contexts/CounterContext'
 
 export default function Bonus() {
   const { value } = useCounter()

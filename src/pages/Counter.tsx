@@ -1,4 +1,4 @@
-import { useCounter } from '../hooks/useCounter';
+import { useCounter } from '../contexts/CounterContext';
 import DropDownMenu from '../components/dropDown';
 
 export default function Counter() {

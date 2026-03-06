@@ -1,4 +1,4 @@
-import { useCounter } from '../hooks/useCounter';
+import { useCounter } from '../contexts/CounterContext';
 import counter from "/counter.mp4";
 
 export default function Monitor() {

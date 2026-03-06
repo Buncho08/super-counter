@@ -1,8 +1,17 @@
-import { useEffect, useState, useCallback } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from './AuthContext'
 
-export function useCounter() {
+type CounterContextType = {
+  value: number
+  loading: boolean
+  increment: () => Promise<void>
+  decrement: () => Promise<void>
+}
+
+const CounterContext = createContext<CounterContextType>({} as CounterContextType)
+
+export const CounterProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth()
   const [value, setValue] = useState<number>(0)
   const [loading, setLoading] = useState(true)
@@ -34,7 +43,6 @@ export function useCounter() {
       if (data) {
         setValue(data.value)
       } else {
-        // レコードがなければ作成
         await supabase.from('counters').insert({
           user_id: user.id,
           name: 'default',
@@ -46,7 +54,7 @@ export function useCounter() {
 
     fetchCounter()
 
-    // Realtimeでリアルタイム同期（他端末からの変更を受信）
+    // Realtimeでリアルタイム同期（アプリ全体で1つのサブスクリプション）
     const channel = supabase
       .channel(`counter-${user.id}`)
       .on(
@@ -73,27 +81,29 @@ export function useCounter() {
 
   const increment = useCallback(async () => {
     if (!user) return
-    // 楽観的更新：即座にUIを更新
     setValue((prev) => prev + 1)
     const { error } = await supabase.rpc('increment_counter', { uid: user.id })
     if (error) {
       console.error('[Counter] increment error:', error)
-      // エラー時はDBから再取得してロールバック
       refetch()
     }
   }, [user, refetch])
 
   const decrement = useCallback(async () => {
     if (!user) return
-    // 楽観的更新：即座にUIを更新
     setValue((prev) => Math.max(prev - 1, 0))
     const { error } = await supabase.rpc('decrement_counter', { uid: user.id })
     if (error) {
       console.error('[Counter] decrement error:', error)
-      // エラー時はDBから再取得してロールバック
       refetch()
     }
   }, [user, refetch])
 
-  return { value, loading, increment, decrement }
+  return (
+    <CounterContext.Provider value={{ value, loading, increment, decrement }}>
+      {children}
+    </CounterContext.Provider>
+  )
 }
+
+export const useCounter = () => useContext(CounterContext)
