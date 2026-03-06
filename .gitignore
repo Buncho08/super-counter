@@ -25,7 +25,6 @@ dist-ssr
 
 counterRegister.html
 counterView.html
-index.html
 package-lock.json
 t.html
 counter-app/public/nanako_demo.jpg
