@@ -30,8 +30,6 @@ export default function App() {
     test()
   }, [])
   return (
-    <React.StrictMode>
-      <RouterProvider router={router} />
-    </React.StrictMode>
+    <RouterProvider router={router} />
   )
 }

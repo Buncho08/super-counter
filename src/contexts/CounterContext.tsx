@@ -7,6 +7,8 @@ type CounterContextType = {
   loading: boolean
   increment: () => Promise<void>
   decrement: () => Promise<void>
+  reset: () => Promise<void>
+  setCounter: (newValue: number) => Promise<void>
 }
 
 const CounterContext = createContext<CounterContextType>({} as CounterContextType)
@@ -99,8 +101,29 @@ export const CounterProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }, [user, refetch])
 
+  const reset = useCallback(async () => {
+    if (!user) return
+    setValue(0)
+    const { error } = await supabase.rpc('reset_counter', { uid: user.id })
+    if (error) {
+      console.error('[Counter] reset error:', error)
+      refetch()
+    }
+  }, [user, refetch])
+
+  const setCounter = useCallback(async (newValue: number) => {
+    if (!user) return
+    const safeValue = Math.max(newValue, 0)
+    setValue(safeValue)
+    const { error } = await supabase.rpc('set_counter', { uid: user.id, new_value: safeValue })
+    if (error) {
+      console.error('[Counter] setCounter error:', error)
+      refetch()
+    }
+  }, [user, refetch])
+
   return (
-    <CounterContext.Provider value={{ value, loading, increment, decrement }}>
+    <CounterContext.Provider value={{ value, loading, increment, decrement, reset, setCounter }}>
       {children}
     </CounterContext.Provider>
   )
