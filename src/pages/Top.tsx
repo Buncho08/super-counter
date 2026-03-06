@@ -1,8 +1,10 @@
-import { openLinkInNewTab } from '../lib/counterData';
-import nanako from "/nanako.png";
+import { useNavigate } from 'react-router'
+import nanako from "/nanako.png"
 
 export default function Top() {
-  const linkStyle = "transition-colors hover:text-sky-400";
+  const navigate = useNavigate()
+  const linkStyle = "transition-colors hover:text-sky-400 cursor-pointer"
+
   return (
     <div className='font-noto h-full'>
       <div id='header' className='w-full h-[360px]'>
@@ -12,13 +14,11 @@ export default function Top() {
         <h1 className="text-5xl m-5 font-bold">
           🍻TOPページ🍻
         </h1>
-
         <ul className="mt-7 flex self-center items-center flex-col gap-4 text-xl text-sky-950">
-          <li><p onClick={() => openLinkInNewTab("/counter")} className={linkStyle}>操作用 カウンター</p></li>
-          <li><p onClick={() => openLinkInNewTab("/main")} className={linkStyle}>モニター表示用 カウンター</p></li>
+          <li><p onClick={() => navigate('/counter')} className={linkStyle}>操作用 カウンター</p></li>
+          <li><p onClick={() => navigate('/main')} className={linkStyle}>モニター表示用 カウンター</p></li>
         </ul>
       </div>
     </div>
-
-  );
+  )
 }

@@ -7,13 +7,16 @@ import Counter from './pages/Counter';
 import Main from './pages/Main';
 import Settings from './pages/Settings';
 import { supabase } from './lib/supabase'
+import Login from './pages/Login';
+import PrivateRoute from './components/PrivateRoute'
 
 const router = createBrowserRouter([
-  { path: '/', element: <Top /> },
-  { path: '/monitor', element: <Monitor /> },
-  { path: '/counter', element: <Counter /> },
-  { path: '/main', element: <Main /> },
-  { path: '/settings', element: <Settings /> },
+  { path: '/', element: <PrivateRoute><Top /></PrivateRoute> },
+  { path: '/login', element: <Login /> },
+  { path: '/monitor', element: <PrivateRoute><Monitor /></PrivateRoute> },
+  { path: '/counter', element: <PrivateRoute><Counter /></PrivateRoute> },
+  { path: '/main', element: <PrivateRoute><Main /></PrivateRoute> },
+  { path: '/settings', element: <PrivateRoute><Settings /></PrivateRoute> },
 ]);
 
 

@@ -1,4 +1,4 @@
-import DropDownMenu from '../component/dropDown';
+import DropDownMenu from '../components/dropDown';
 export default function Settings() {
 
     return (
