@@ -1,4 +1,3 @@
-import React from 'react';
 import { useEffect } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import Top from './pages/Top';
