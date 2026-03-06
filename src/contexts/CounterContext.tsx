@@ -67,9 +67,7 @@ export const CounterProvider = ({ children }: { children: React.ReactNode }) => 
       }
 
       channel = supabase
-        .channel(`counter-${user.id}`, {
-          config: { private: true },
-        })
+        .channel(`counter-${user.id}`)
         .on(
           'postgres_changes',
           {
