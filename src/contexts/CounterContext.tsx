@@ -57,6 +57,8 @@ export const CounterProvider = ({ children }: { children: React.ReactNode }) => 
     fetchCounter()
 
     // Realtimeでリアルタイム同期（アプリ全体で1つのサブスクリプション）
+    let channel: ReturnType<typeof supabase.channel> | null = null
+
     const setupChannel = async () => {
       // 認証トークンをRealtime接続に明示的に設定
       const { data: { session } } = await supabase.auth.getSession()
@@ -64,8 +66,10 @@ export const CounterProvider = ({ children }: { children: React.ReactNode }) => 
         supabase.realtime.setAuth(session.access_token)
       }
 
-      return supabase
-        .channel(`counter-${user.id}`)
+      channel = supabase
+        .channel(`counter-${user.id}`, {
+          config: { private: true },
+        })
         .on(
           'postgres_changes',
           {
@@ -84,11 +88,20 @@ export const CounterProvider = ({ children }: { children: React.ReactNode }) => 
         })
     }
 
-    let channel: ReturnType<typeof supabase.channel> | null = null
-    setupChannel().then((ch) => { channel = ch })
+    setupChannel()
+
+    // トークンが更新されたらRealtimeにも反映
+    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session?.access_token) {
+          supabase.realtime.setAuth(session.access_token)
+        }
+      }
+    )
 
     return () => {
       if (channel) supabase.removeChannel(channel)
+      authSub.unsubscribe()
     }
   }, [user])
 
