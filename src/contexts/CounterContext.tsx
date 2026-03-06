@@ -57,36 +57,35 @@ export const CounterProvider = ({ children }: { children: React.ReactNode }) => 
     fetchCounter()
 
     // Realtimeでリアルタイム同期（アプリ全体で1つのサブスクリプション）
-    let channel: ReturnType<typeof supabase.channel> | null = null
+    // 先にsetAuthを同期的に呼んでからチャンネルを作成
+    let cancelled = false
 
-    const setupChannel = async () => {
-      // 認証トークンをRealtime接続に明示的に設定
-      const { data: { session } } = await supabase.auth.getSession()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (cancelled) return
       if (session?.access_token) {
         supabase.realtime.setAuth(session.access_token)
       }
+    })
 
-      channel = supabase
-        .channel(`counter-${user.id}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'counters',
-            filter: `user_id=eq.${user.id}`,
-          },
-          (payload) => {
-            console.log('[Realtime] update received:', payload.new)
-            setValue((payload.new as { value: number }).value)
-          }
-        )
-        .subscribe((status) => {
-          console.log('[Realtime] subscription status:', status)
-        })
-    }
-
-    setupChannel()
+    const channel = supabase
+      .channel(`counter-${user.id}-${Date.now()}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'counters',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('[Realtime] update received:', payload.new)
+          setValue((payload.new as { value: number }).value)
+        }
+      )
+      .subscribe((status, err) => {
+        console.log('[Realtime] subscription status:', status)
+        if (err) console.error('[Realtime] error detail:', JSON.stringify(err))
+      })
 
     // トークンが更新されたらRealtimeにも反映
     const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
@@ -98,7 +97,8 @@ export const CounterProvider = ({ children }: { children: React.ReactNode }) => 
     )
 
     return () => {
-      if (channel) supabase.removeChannel(channel)
+      cancelled = true
+      supabase.removeChannel(channel)
       authSub.unsubscribe()
     }
   }, [user])
